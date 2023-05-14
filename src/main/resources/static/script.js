@@ -18,6 +18,22 @@ function displayProducts(products) {
   });
 }
 
+function hideProductList() {
+  const productDiv = document.getElementById("product-list");
+  productDiv.innerHTML = "";
+}
+const searchForm = document.getElementById("search-form");
+searchForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const formData = new FormData(searchForm);
+  const searchParams = new URLSearchParams(formData).toString();
+  const response = await fetch(`/product/search?${searchParams}`);
+  const products = await response.json();
+  hideProductList();
+
+  displayProducts(products.content);
+});
+
 function displayPagination(page) {
 
   const pagination = document.getElementById("pagination");
@@ -26,11 +42,16 @@ function displayPagination(page) {
   const pageNumbers = [];
   const totalPages = page.totalPages;
   const currentPage = page.number + 1;
+  if (totalPages < 2) {
+          return;
+        }
+
 
   let startPage = 1;
   let endPage = totalPages;
 
   const maxPages = 5;
+
   if (totalPages > maxPages) {
     const middle = Math.floor(maxPages / 2);
     if (currentPage <= middle) {
@@ -88,9 +109,11 @@ function displayPagination(page) {
     });
   }
 }
+
 window.onload = async () => {
   const response = await fetch("/product");
   const products = await response.json();
   displayProducts(products.content);
-  displayPagination(products);
+
+      displayPagination(products);
 };
